@@ -1,0 +1,44 @@
+# Caddyfile for Hermes secrets API
+#
+# Reverses HTTPS traffic from https://hermes.localdomain/secrets-api/* to
+# the FastAPI service bound to 127.0.0.1:9876. Self-signed cert (the
+# hostname is a private LAN address — Let's Encrypt can't reach it).
+#
+# Mobile clients (iOS Safari / Android Chrome) must trust the cert:
+#   - Android: install the cert via Settings → Security → Encryption
+#   - iOS: Settings → General → VPN & Device Management → install profile,
+#          then Settings → General → About → Certificate Trust Settings
+#
+# Regenerate with: openssl req -x509 -newkey rsa:2048 -keyout key.pem
+#   -out cert.pem -days 365 -nodes -subj '/CN=hermes.localdomain'
+#   -addext 'subjectAltName=DNS:hermes.localdomain,DNS:localhost,
+#            IP:192.168.200.220,IP:127.0.0.1'
+
+https://hermes.localdomain {
+    tls /var/lib/caddy/.local/share/caddy/hermes.localdomain.crt /var/lib/caddy/.local/share/caddy/hermes.localdomain.key
+
+    # CORS preflight: handled here so FastAPI's CORS middleware sees
+    # only the actual request.
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header {
+            Access-Control-Allow-Origin "https://ruimgoncalves.github.io"
+            Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"
+            Access-Control-Allow-Headers "X-Telegram-Init-Data, Content-Type"
+            Access-Control-Max-Age "3600"
+        }
+        respond "" 204
+    }
+
+    # Strip the /secrets-api prefix and forward to FastAPI on localhost.
+    # handle_path strips the matched prefix before proxying.
+    handle_path /secrets-api/* {
+        reverse_proxy 127.0.0.1:9876
+    }
+}
+
+# Plain HTTP: redirect to HTTPS (defensive — for callers that try
+# http://hermes.localdomain first).
+http://hermes.localdomain {
+    redir https://{host}{uri} permanent
+}

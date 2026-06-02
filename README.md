@@ -30,16 +30,24 @@ python3 -m http.server 8000
 
 ```
 telegram-hermes-miniapp/
-├── index.html      # markup + Telegram Web App SDK include
-├── style.css       # theme-aware (uses --tg-theme-* CSS vars)
-├── app.js          # menu, view switching, form, localStorage
+├── index.html                          # markup + Telegram Web App SDK include
+├── style.css                           # theme-aware (uses --tg-theme-* CSS vars)
+├── app.js                              # menu, view switching, form, localStorage
+├── services/
+│   └── secrets-api/                    # FastAPI backend (separate branch)
+│       ├── server.py
+│       ├── test_server.py              # 21 tests
+│       ├── hermes-secrets-api.service  # systemd unit
+│       ├── Caddyfile                   # HTTPS reverse proxy config
+│       ├── hermes.localdomain.crt      # self-signed cert (for phone)
+│       └── README.md
 └── README.md
 ```
 
-No build step. No dependencies. No backend.
+No build step. No frontend dependencies. The backend uses FastAPI + Caddy.
 
-## Security notes
+## Status
 
-- `localStorage` is **per-browser/per-device** and **not encrypted at rest**. Treat it as a clipboard, not a vault.
-- Until the backend is wired, secrets never leave the device. That's by design for this stage.
-- When the backend is added, the value should be POSTed over HTTPS and the local copy should be wiped.
+- **UI is live** at https://ruimgoncalves.github.io/telegram-hermes-miniapp/ (GitHub Pages).
+- The submit button still persists to `localStorage` — the backend is wired in a follow-up branch.
+- The **backend ships on branch `feature/secrets-api-backend`**: a FastAPI service exposed at `https://hermes.localdomain/secrets-api/` with Telegram initData auth, reverse-proxied via Caddy with a self-signed cert. See `services/secrets-api/README.md` for the deployment guide.
