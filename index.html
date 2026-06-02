@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Hermes Secrets</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <header class="app-bar">
+    <button id="menuBtn" class="icon-btn" aria-label="Open menu">☰</button>
+    <h1 class="app-title">Hermes Secrets</h1>
+    <span class="app-bar-spacer"></span>
+  </header>
+
+  <nav id="sideMenu" class="side-menu" aria-hidden="true">
+    <div class="side-menu-inner">
+      <div class="side-menu-header">
+        <h2>Menu</h2>
+        <button id="closeMenuBtn" class="icon-btn" aria-label="Close menu">✕</button>
+      </div>
+      <ul class="side-menu-list">
+        <li><button class="menu-item active" data-view="add">＋ Add Secret</button></li>
+        <li><button class="menu-item disabled" data-view="view" disabled>👁 View Secrets</button></li>
+        <li><button class="menu-item" data-view="about">ℹ About</button></li>
+      </ul>
+    </div>
+    <div id="menuBackdrop" class="menu-backdrop"></div>
+  </nav>
+
+  <main class="main">
+    <!-- Add Secret view -->
+    <section id="view-add" class="view active">
+      <h2 class="view-title">Add Secret</h2>
+      <p class="view-sub">Stored locally in this browser. Not sent anywhere yet.</p>
+
+      <form id="secretForm" class="card" novalidate>
+        <label class="field">
+          <span class="field-label">Secret name</span>
+          <input
+            id="nameInput"
+            type="text"
+            class="text-input"
+            placeholder="e.g. GITHUB_TOKEN"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Secret value</span>
+          <div class="value-row">
+            <input
+              id="valueInput"
+              type="password"
+              class="text-input"
+              placeholder="••••••••"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button type="button" id="toggleValueBtn" class="icon-btn small" aria-label="Show value">👁</button>
+          </div>
+          <span class="size-hint" id="sizeHint">0 bytes</span>
+        </label>
+
+        <button type="submit" id="submitBtn" class="primary-btn">Save Secret</button>
+
+        <p id="errorMsg" class="error-msg" role="alert" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- About view -->
+    <section id="view-about" class="view">
+      <h2 class="view-title">About</h2>
+      <div class="card">
+        <p>A Telegram Mini App for <strong>Hermes</strong> secrets.</p>
+        <p>Submit secrets from your phone without going through Telegram or an LLM — the data lives only in this device's browser storage until a backend is wired.</p>
+        <p class="muted">v0.1 · static page · no server, no telemetry</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
