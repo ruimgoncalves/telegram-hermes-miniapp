@@ -267,6 +267,68 @@ def test_list_does_not_leak_values(client):
 
 
 # ---------------------------------------------------------------------------
+# GET /v1/secrets/{name}
+# ---------------------------------------------------------------------------
+
+
+def test_get_secret_returns_value(client):
+    init = build_init_data(ALLOWED_USER)
+    client.post(
+        "/v1/secrets",
+        json={"name": "WITH_VALUE", "value": "the-actual-secret"},
+        headers={"X-Telegram-Init-Data": init},
+    )
+    r = client.get(
+        "/v1/secrets/WITH_VALUE",
+        headers={"X-Telegram-Init-Data": init},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["name"] == "WITH_VALUE"
+    assert body["value"] == "the-actual-secret"
+
+
+def test_get_secret_404_when_missing(client):
+    init = build_init_data(ALLOWED_USER)
+    r = client.get(
+        "/v1/secrets/DOES_NOT_EXIST",
+        headers={"X-Telegram-Init-Data": init},
+    )
+    assert r.status_code == 404
+
+
+def test_get_secret_requires_auth(client):
+    r = client.get("/v1/secrets/ANYTHING")
+    assert r.status_code == 401
+
+
+def test_get_secret_rejects_invalid_name(client):
+    init = build_init_data(ALLOWED_USER)
+    r = client.get(
+        "/v1/secrets/bad name",
+        headers={"X-Telegram-Init-Data": init},
+    )
+    assert r.status_code == 422
+
+
+def test_get_secret_rejects_unauthorized_user(client):
+    # Write as the allowed user
+    init = build_init_data(ALLOWED_USER)
+    client.post(
+        "/v1/secrets",
+        json={"name": "PRIVATE", "value": "x"},
+        headers={"X-Telegram-Init-Data": init},
+    )
+    # Try to read as a different user
+    other = build_init_data(12345678)
+    r = client.get(
+        "/v1/secrets/PRIVATE",
+        headers={"X-Telegram-Init-Data": other},
+    )
+    assert r.status_code == 403
+
+
+# ---------------------------------------------------------------------------
 # DELETE /v1/secrets
 # ---------------------------------------------------------------------------
 

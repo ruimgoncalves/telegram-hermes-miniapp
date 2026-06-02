@@ -320,6 +320,23 @@ def list_secrets() -> SecretList:
     return SecretList(secrets=[SecretOut(name=k) for k in sorted(pairs.keys())])
 
 
+class SecretValueOut(BaseModel):
+    name: str
+    value: str
+
+
+@app.get(
+    "/v1/secrets/{name}",
+    response_model=SecretValueOut,
+    dependencies=[Depends(require_telegram_user)],
+)
+def get_secret(name: str = PathParam(..., pattern=NAME_RE.pattern)) -> SecretValueOut:
+    pairs = read_env_pairs()
+    if name not in pairs:
+        raise HTTPException(status_code=404, detail=f"no such secret: {name}")
+    return SecretValueOut(name=name, value=pairs[name])
+
+
 @app.post(
     "/v1/secrets",
     response_model=SecretOut,

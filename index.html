@@ -21,8 +21,8 @@
         <button id="closeMenuBtn" class="icon-btn" aria-label="Close menu">✕</button>
       </div>
       <ul class="side-menu-list">
-        <li><button class="menu-item active" data-view="add">＋ Add Secret</button></li>
-        <li><button class="menu-item disabled" data-view="view" disabled>👁 View Secrets</button></li>
+        <li><button class="menu-item" data-view="add">＋ Add Secret</button></li>
+        <li><button class="menu-item" data-view="view">👁 View Secrets</button></li>
         <li><button class="menu-item" data-view="about">ℹ About</button></li>
       </ul>
     </div>
@@ -30,10 +30,13 @@
   </nav>
 
   <main class="main">
+    <!-- Connection status banner -->
+    <p id="connBanner" class="conn-banner" hidden></p>
+
     <!-- Add Secret view -->
     <section id="view-add" class="view active">
       <h2 class="view-title">Add Secret</h2>
-      <p class="view-sub">Stored locally in this browser. Not sent anywhere yet.</p>
+      <p class="view-sub" id="addSub">Stored in your Telegram user vault on this device.</p>
 
       <form id="secretForm" class="card" novalidate>
         <label class="field">
@@ -71,13 +74,28 @@
       </form>
     </section>
 
+    <!-- View Secrets view -->
+    <section id="view-view" class="view">
+      <h2 class="view-title">Your Secrets</h2>
+      <p class="view-sub">Names are listed from the vault. Tap to reveal a value, or swipe-style delete.</p>
+
+      <div class="card view-toolbar">
+        <button id="refreshBtn" class="primary-btn secondary">↻ Refresh</button>
+        <span id="listMeta" class="list-meta"></span>
+      </div>
+
+      <ul id="secretList" class="secret-list" aria-live="polite"></ul>
+      <p id="listMsg" class="list-msg"></p>
+    </section>
+
     <!-- About view -->
     <section id="view-about" class="view">
       <h2 class="view-title">About</h2>
       <div class="card">
         <p>A Telegram Mini App for <strong>Hermes</strong> secrets.</p>
-        <p>Submit secrets from your phone without going through Telegram or an LLM — the data lives only in this device's browser storage until a backend is wired.</p>
-        <p class="muted">v0.1 · static page · no server, no telemetry</p>
+        <p>Secrets you save here are written to <code>~/.hermes/.env</code> on the Hermes host, so the agent can use them on the next request — no Telegram round-trip, no LLM in the path.</p>
+        <p>Auth is handled by validating the Telegram Mini App init data against the bot token. Anyone else gets a 403.</p>
+        <p class="muted">v0.2 · static page · backend at <code id="apiBaseLabel"></code></p>
       </div>
     </section>
   </main>
