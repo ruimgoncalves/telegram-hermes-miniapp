@@ -124,9 +124,15 @@
     toggleValueBtn.setAttribute('aria-label', showing ? 'Show value' : 'Hide value');
   });
 
-  // ---- Error display (inline, under form) ----
+  // ---- Inline message under the form (errors red, success green) ----
   function showError(msg) {
     errorMsg.textContent = msg || '';
+    // Toggle success class based on the leading checkmark.
+    if (msg && msg.trim().startsWith('✓')) {
+      errorMsg.classList.add('success');
+    } else {
+      errorMsg.classList.remove('success');
+    }
   }
 
   // ---- Form submission ----

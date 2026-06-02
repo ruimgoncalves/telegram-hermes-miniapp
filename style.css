@@ -226,5 +226,7 @@ body {
   color: var(--danger);
   text-align: center;
   margin: 0;
+  transition: color 0.2s;
 }
 .error-msg:empty { visibility: hidden; }
+.error-msg.success { color: #4ade80; } /* green — only when a ✓ success line is shown */
